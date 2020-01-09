@@ -20,15 +20,6 @@ python() {
             bb.fatal('Detected use of deprecated var %s, please replace it with %s in your setup' % (varname, newvarname))
 }
 
-def get_extra_parts(d):
-    final_parts = []
-    parts = d.getVar("MENDER_EXTRA_PARTS")
-    parts = parts.split(";")
-    for part in parts:
-      final_parts.append("part --ondisk \"$ondisk_dev\" --align $alignment_kb {}".format(part))
-    return '\n'.join(final_parts)
-
-
 inherit image
 inherit image_types
 inherit mender-helpers
@@ -149,11 +140,9 @@ EOF
 part --source rawcopy --sourceparams="file=${IMGDEPLOYDIR}/${IMAGE_LINK_NAME}.dataimg" --ondisk "$ondisk_dev" --align $alignment_kb --fixed-size ${MENDER_DATA_PART_SIZE_MB} --mkfs-extraopts='${MENDER_DATA_PART_FSOPTS}' $part_type_params
 EOF
 # added extra partitions if exists
-    if [ -n "${MENDER_EXTRA_PARTS}" ]; then
     cat >> "$wks" <<EOF
-${@get_extra_parts(d)}
+    ${@get_extra_parts_wks(d)}
 EOF
-    fi
 
     cat >> "$wks" <<EOF
 bootloader --ptable $ptable_type

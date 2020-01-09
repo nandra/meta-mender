@@ -290,3 +290,41 @@ mender_merge_bootfs_and_image_boot_files() {
         done
     done
 }
+
+def get_extra_parts(d):
+    final_parts = []
+    partsflags = d.getVarFlags("MENDER_EXTRA_PARTS") or {}
+    if partsflags:
+        parts = (d.getVar('MENDER_EXTRA_PARTS') or "").split()
+
+        for flag, flagval in partsflags.items():
+            if flag in parts:
+                final_parts.append(flagval)
+
+    return final_parts
+
+def get_extra_parts_by_id(d, id):
+    partsflags = d.getVarFlags("MENDER_EXTRA_PARTS") or {}
+    if partsflags:
+        if id in partsflags.keys():
+            return partsflags[id]
+    return ""
+
+def get_extra_parts_labels(d):
+    labels = []
+    parts = get_extra_parts(d)
+    if parts:
+        for part in parts:
+            s = part.find("--label")
+            if s > 0:
+                e = part.find("--", s + 2)
+                labels.append(part[s + len("--label="):e])
+    return ' '.join(labels)
+
+def get_extra_parts_wks(d):
+    final_parts = []
+    parts = get_extra_parts(d) or {}
+    if parts:
+        for part in parts:
+            final_parts.append("part --ondisk \"$ondisk_dev\" --align \"$alignment_kb\" {}".format(part))
+    return '\n'.join(final_parts)
