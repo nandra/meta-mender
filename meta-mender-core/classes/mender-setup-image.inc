@@ -44,6 +44,18 @@ mender_update_fstab_file() {
 
     mkdir -p ${IMAGE_ROOTFS}/data
     printf "%-20s %-20s %-10s %-21s %-2s %s\n" ${tmpDataPart} /data ${MENDER_DATA_PART_FSTYPE} ${MENDER_DATA_PART_FSTAB_OPTS} 0 0 >> ${IMAGE_ROOTFS}${sysconfdir}/fstab
+
+    # TODO: skip if mender-partuuid is used
+    if [ -n "${MENDER_EXTRA_PARTS}" ]; then
+        local labels="${@get_extra_parts_labels(d)}"
+        dev_nr="${@mender_get_data_part_num(d)}"
+        for label in $labels; do
+            mkdir -p ${IMAGE_ROOTFS}/mnt/$label
+            dev_nr=$(expr $dev_nr + 1)
+            device="${MENDER_STORAGE_DEVICE_BASE}${dev_nr}"
+            printf "%-20s %-20s %-10s %-21s %-2s %s\n" ${device} /mnt/$label auto defaults 0 0 >> ${IMAGE_ROOTFS}${sysconfdir}/fstab
+        done
+    fi
 }
 
 def mender_default_state_scripts_version(d):
