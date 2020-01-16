@@ -53,7 +53,7 @@ mender_update_fstab_file() {
             mkdir -p ${IMAGE_ROOTFS}/mnt/$label
             dev_nr=$(expr $dev_nr + 1)
             device="${MENDER_STORAGE_DEVICE_BASE}${dev_nr}"
-            printf "%-20s %-20s %-10s %-21s %-2s %s\n" ${device} /mnt/$label auto defaults 0 0 >> ${IMAGE_ROOTFS}${sysconfdir}/fstab
+            printf "%-20s %-20s %-10s %-21s %-2s %s\n" ${device} /mnt/$label auto defaults,noauto 0 0 >> ${IMAGE_ROOTFS}${sysconfdir}/fstab
         done
     fi
 }
